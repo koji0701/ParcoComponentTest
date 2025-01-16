@@ -10,6 +10,8 @@ export const colors = {
       base: '#2B3F8E',    // PARCO Blue
       light: '#3D56C5',   // PARCO Blue Light
       lighter: '#4B6BE8', // Secondary Highlight
+      bright: '#21B8FD', //PARCO Highlight
+      mute: '#ADC5E3' //PARCO Water
     },
     
     // Grays

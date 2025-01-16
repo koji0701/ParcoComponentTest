@@ -1,23 +1,15 @@
 import React, { useState } from 'react';
-import { Box, Typography, Paper } from '@mui/material';
+import { Box, Typography, Paper, Tabs, Tab } from '@mui/material';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import FundRow from './FundRow';
 import { useTheme } from '../theme/ThemeProvider';
 
-interface Fund {
-  name: string;
-  value: number;
-  riskLevel: number;
-  examples: string[];
-  description: string;
-  backgroundColor: string;
-}
-
 const TSPHoldings = () => {
   const theme = useTheme();
   const [activeIndex, setActiveIndex] = useState<number | undefined>();
+  const [activeTab, setActiveTab] = useState(0);
   
-  const funds = [
+  const baseFunds = [
     {
       name: 'C Fund',
       value: 50150,
@@ -29,29 +21,61 @@ const TSPHoldings = () => {
     {
       name: 'G Fund',
       value: 64198,
-      riskLevel: 1,
-      examples: ['Government Securities'],
-      description: 'Low risk, government-backed securities with stable returns',
+      riskLevel: 10,
+      examples: ['Apple', 'Google', 'Microsoft', 'Meta', 'Tesla'],
+      description: 'Very volatile, will reap the most rewards from good years and the worst losses of bad years',
       backgroundColor: theme.colors.gray.dark,
     },
     {
       name: 'I Fund',
       value: 15640,
-      riskLevel: 8,
-      examples: ['Toyota', 'Nestle', 'Samsung', 'LVMH'],
-      description: 'International stock index fund tracking non-US developed markets',
-      backgroundColor: theme.colors.gray.lighter,
+      riskLevel: 10,
+      examples: ['Apple', 'Google', 'Microsoft', 'Meta', 'Tesla'],
+      description: 'Very volatile, will reap the most rewards from good years and the worst losses of bad years',
+      backgroundColor: theme.colors.secondary.mute
+    },
+    {
+      name: 'Y Fund',
+      value: 22739,
+      riskLevel: 10,
+      examples: ['Apple', 'Google', 'Microsoft', 'Meta', 'Tesla'],
+      description: 'Very volatile, will reap the most rewards from good years and the worst losses of bad years',
+      backgroundColor: theme.colors.secondary.darker,
     },
     {
       name: 'S Fund',
-      value: 80242,
-      riskLevel: 9,
-      examples: ['Square', 'Zoom', 'Coinbase'],
-      description: 'Small and mid-cap US stocks not in the C Fund',
-      backgroundColor: theme.colors.secondary.darker,
+      value: 22739,
+      riskLevel: 10,
+      examples: ['Apple', 'Google', 'Microsoft', 'Meta', 'Tesla'],
+      description: 'Very volatile, will reap the most rewards from good years and the worst losses of bad years',
+      backgroundColor: theme.colors.gray.dark,
+    },
+    {
+      name: 'F Fund',
+      value: 22739,
+      riskLevel: 10,
+      examples: ['Apple', 'Google', 'Microsoft', 'Meta', 'Tesla'],
+      description: 'Very volatile, will reap the most rewards from good years and the worst losses of bad years',
+      backgroundColor: theme.colors.secondary.bright,
     },
   ];
 
+  const lookThroughFunds = [ //im a bit unclear about what value they should have so im increasing each by 22739
+    {
+      ...baseFunds[0],
+      value: 72889  
+    },
+    {
+      ...baseFunds[1],
+      value: 86937 
+    },
+    {
+      ...baseFunds[2],
+      value: 38379  
+    }
+  ];
+
+  const funds = activeTab === 0 ? baseFunds : lookThroughFunds;
   const totalValue = funds.reduce((sum, fund) => sum + fund.value, 0);
 
   const chartData = funds.map(fund => ({
@@ -67,6 +91,10 @@ const TSPHoldings = () => {
     setActiveIndex(undefined);
   };
 
+  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
+    setActiveTab(newValue);
+  };
+
   return (
     <Paper sx={{ 
       p: theme.spacing.xl,
@@ -76,26 +104,45 @@ const TSPHoldings = () => {
       backgroundColor: theme.colors.white,
       borderRadius: '12px'
     }}>
-      <Box sx={{ mb: theme.spacing.xl }}>
-        <Typography 
-          variant="h1" 
-          sx={{ 
-            ...theme.typography.h1,
-            color: theme.colors.gray.dark,
-            mb: theme.spacing.xs
+      <Box sx={{ 
+        mb: theme.spacing.xl,
+        display: 'flex',
+        justifyContent: 'center',
+        '& .MuiTabs-root': {
+          minHeight: 'unset',
+        },
+        '& .MuiTabs-indicator': {
+          display: 'none',
+        },
+      }}>
+        <Tabs 
+          value={activeTab} 
+          onChange={handleTabChange}
+          sx={{
+            borderRadius: '100px',
+            padding: '4px',
+            '& .MuiTab-root': {
+              textTransform: 'none',
+              fontSize: theme.typography.h2.fontSize,
+              fontWeight: theme.typography.h2.fontWeight,
+              color: theme.colors.gray.mediumDark,
+              minHeight: 'unset',
+              padding: '8px 16px',
+              borderRadius: '100px',
+              marginRight: '4px',
+              '&:last-child': {
+                marginRight: 0,
+              },
+              '&.Mui-selected': {
+                backgroundColor: theme.colors.gray.lighter,
+                boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.1)',
+              },
+            },
           }}
         >
-          TSP Holdings
-        </Typography>
-        <Typography 
-          variant="h2" 
-          sx={{ 
-            ...theme.typography.h2,
-            color: theme.colors.gray.mediumDark
-          }}
-        >
-          Look Through Holdings
-        </Typography>
+          <Tab label="TSP Holdings" />
+          <Tab label="Look Through Holdings" />
+        </Tabs>
       </Box>
 
       <Box sx={{ position: 'relative', height: 400, mb: theme.spacing.xl }}>
