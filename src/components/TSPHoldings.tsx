@@ -3,12 +3,12 @@ import { Box, Typography, Paper, Tabs, Tab } from '@mui/material';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import FundRow from './FundRow';
 import { useTheme } from '../theme/ThemeProvider';
-
 const TSPHoldings = () => {
-  const theme = useTheme();
-  const [activeIndex, setActiveIndex] = useState<number | undefined>();
-  const [clickedIndex, setClickedIndex] = useState<number | undefined>();
-  const [activeTab, setActiveTab] = useState(0);
+    const theme = useTheme();
+    const [hoveredPieIndex, setHoveredPieIndex] = useState<number | undefined>();
+    const [selectedPieIndex, setSelectedPieIndex] = useState<number | undefined>();
+    const [expandedRowIndices, setExpandedRowIndices] = useState<number[]>([]);
+    const [activeTab, setActiveTab] = useState(0);
   const baseFunds = [
     {
       name: 'C Fund',
@@ -84,29 +84,38 @@ const TSPHoldings = () => {
   }));
 
   const onPieEnter = (_: any, index: number) => {
-    if (clickedIndex === undefined) {
-      setActiveIndex(index);
-    }
+    setHoveredPieIndex(index);
   };
 
   const onPieLeave = () => {
-    if (clickedIndex === undefined) {
-      setActiveIndex(undefined);
-    }
+    setHoveredPieIndex(undefined);
   };
 
   const handlePieClick = (_: any, index: number) => {
-    setClickedIndex(prev => prev === index ? undefined : index);
-    setActiveIndex(index);
-  };
-  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
-    setActiveTab(newValue);
-    setClickedIndex(undefined);
-    setActiveIndex(undefined);
+    // Toggle selected pie index and expand corresponding row
+    setSelectedPieIndex(prev => prev === index ? undefined : index);
+    if (!expandedRowIndices.includes(index)) {
+      setExpandedRowIndices(prev => [...prev, index]);
+    }
   };
 
-  // Get the currently displayed index (either clicked or hovered)
-  const displayedIndex = clickedIndex !== undefined ? clickedIndex : activeIndex;
+  const handleRowToggle = (index: number) => {
+    setExpandedRowIndices(prev => 
+      prev.includes(index) 
+        ? prev.filter(i => i !== index)
+        : [...prev, index]
+    );
+  };
+
+  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
+    setActiveTab(newValue);
+    setSelectedPieIndex(undefined);
+    setHoveredPieIndex(undefined);
+    setExpandedRowIndices([]);
+  };
+
+  // Get the currently displayed pie index (either selected or hovered)
+  const displayedPieIndex = selectedPieIndex !== undefined ? selectedPieIndex : hoveredPieIndex;
 
   return (
     <Paper sx={{ 
@@ -178,7 +187,7 @@ const TSPHoldings = () => {
                   key={`cell-${index}`}
                   fill={entry.backgroundColor}
                   style={{
-                    transform: `scale(${displayedIndex === index ? 1.1 : 1})`,
+                    transform: `scale(${displayedPieIndex === index ? 1.1 : 1})`,
                     transformOrigin: 'center',
                     transition: 'transform 0.3s ease-in-out',
                     cursor: 'pointer'
@@ -197,7 +206,7 @@ const TSPHoldings = () => {
             textAlign: 'center'
           }}
         >
-          {displayedIndex !== undefined ? (
+          {displayedPieIndex !== undefined ? (
             <>
               <Box sx={{ 
                 display: 'inline-block',
@@ -205,14 +214,14 @@ const TSPHoldings = () => {
               }}>
                 <Typography
                   sx={{
-                    backgroundColor: funds[displayedIndex].backgroundColor,
+                    backgroundColor: funds[displayedPieIndex].backgroundColor,
                     color: theme.colors.white,
                     padding: `${theme.spacing.xs} ${theme.spacing.md}`,
                     borderRadius: '4px',
                     ...theme.typography.body1,
                   }}
                 >
-                  {funds[displayedIndex].name}
+                  {funds[displayedPieIndex].name}
                 </Typography>
               </Box>
               <Typography 
@@ -223,7 +232,7 @@ const TSPHoldings = () => {
                   fontSize: '28px'
                 }}
               >
-                ${funds[displayedIndex].value.toLocaleString()}
+                ${funds[displayedPieIndex].value.toLocaleString()}
               </Typography>
             </>
           ) : (
@@ -276,16 +285,14 @@ const TSPHoldings = () => {
 
     <Box>
         {funds.map((fund, index) => (
-          <FundRow
+        <FundRow
             key={fund.name}
             {...fund}
-            expanded={index === clickedIndex}
-            onToggle={() => {
-              setClickedIndex(prev => prev === index ? undefined : index);
-            }}
-          />
+            expanded={expandedRowIndices.includes(index)}
+            onToggle={() => handleRowToggle(index)}
+        />
         ))}
-      </Box>
+    </Box>
     </Paper>    
   );
 };
