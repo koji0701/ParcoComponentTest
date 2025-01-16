@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Typography, Paper, List, ListItem, ListItemText } from '@mui/material';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import FundRow from './FundRow';
 
 interface Fund {
   name: string;
@@ -11,16 +12,48 @@ interface Fund {
 const TSPHoldings = () => {
   const [activeIndex, setActiveIndex] = useState<number | undefined>();
   
-  const data: Fund[] = [
-    { name: 'C Fund', value: 50150, color: '#4B85C3' },
-    { name: 'G Fund', value: 64198, color: '#6B7580' },
-    { name: 'I Fund', value: 15640, color: '#B8C5D9' },
-    { name: 'Y Fund', value: 22739, color: '#2F4259' },
-    { name: 'S Fund', value: 22739, color: '#1E1E1E' },
-    { name: 'F Fund', value: 22739, color: '#67C6EA' }
+  const funds = [
+    {
+      name: 'C Fund',
+      value: 50150,
+      riskLevel: 10,
+      examples: ['Apple', 'Google', 'Microsoft', 'Meta', 'Tesla'],
+      description: 'Very volatile, will reap the most rewards from good years and the worst losses of bad years',
+      backgroundColor: '#2E77BC',
+    },
+    {
+      name: 'G Fund',
+      value: 64198,
+      riskLevel: 1,
+      examples: ['Government Securities'],
+      description: 'Low risk, government-backed securities with stable returns',
+      backgroundColor: '#4B4B4B',
+    },
+    {
+      name: 'I Fund',
+      value: 15640,
+      riskLevel: 8,
+      examples: ['Toyota', 'Nestle', 'Samsung', 'LVMH'],
+      description: 'International stock index fund tracking non-US developed markets',
+      backgroundColor: '#9DB3D2',
+    },
+    {
+      name: 'S Fund',
+      value: 80242,
+      riskLevel: 9,
+      examples: ['Square', 'Zoom', 'Coinbase'],
+      description: 'Small and mid-cap US stocks not in the C Fund',
+      backgroundColor: '#2F4562',
+    },
   ];
 
-  const total = data.reduce((sum, item) => sum + item.value, 0);
+  const totalValue = funds.reduce((sum, fund) => sum + fund.value, 0);
+
+  // Prepare data for pie chart
+  const chartData = funds.map(fund => ({
+    name: fund.name,
+    value: fund.value,
+  }));
 
   const onPieEnter = (_: any, index: number) => {
     setActiveIndex(index);
@@ -43,7 +76,7 @@ const TSPHoldings = () => {
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
-              data={data}
+              data={chartData}
               cx="50%"
               cy="50%"
               innerRadius={80}
@@ -53,10 +86,10 @@ const TSPHoldings = () => {
               onMouseEnter={onPieEnter}
               onMouseLeave={onPieLeave}
             >
-              {data.map((entry, index) => (
+              {funds.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
-                  fill={entry.color}
+                  fill={entry.backgroundColor}
                   style={{
                     transform: `scale(${activeIndex === index ? 1.1 : 1})`,
                     transformOrigin: 'center',
@@ -80,43 +113,24 @@ const TSPHoldings = () => {
             TSP Total
           </Typography>
           <Typography variant="h4">
-            ${total.toLocaleString()}
+            ${totalValue.toLocaleString()}
           </Typography>
         </Box>
       </Box>
-
-      <List sx={{ mt: 4 }}>
-        {data.map((fund, index) => (
-          <ListItem
+      {funds.map((fund) => (
+          <FundRow
             key={fund.name}
-            sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              py: 2,
-              borderBottom: '1px solid #eee'
-            }}
-          >
-            <Box
-              sx={{
-                bgcolor: fund.color,
-                color: 'white',
-                py: 1,
-                px: 2,
-                borderRadius: 1,
-                minWidth: 120,
-                textAlign: 'center'
-              }}
-            >
-              {fund.name}
-            </Box>
-            <Typography variant="h6" component="span">
-              ${fund.value.toLocaleString()}
-            </Typography>
-          </ListItem>
+            name={fund.name}
+            value={fund.value}
+            riskLevel={fund.riskLevel}
+            examples={fund.examples}
+            description={fund.description}
+            backgroundColor={fund.backgroundColor}
+          />
         ))}
-      </List>
     </Paper>
   );
 };
 
 export default TSPHoldings;
+
