@@ -7,8 +7,8 @@ import { useTheme } from '../theme/ThemeProvider';
 const TSPHoldings = () => {
   const theme = useTheme();
   const [activeIndex, setActiveIndex] = useState<number | undefined>();
+  const [clickedIndex, setClickedIndex] = useState<number | undefined>();
   const [activeTab, setActiveTab] = useState(0);
-  
   const baseFunds = [
     {
       name: 'C Fund',
@@ -84,16 +84,29 @@ const TSPHoldings = () => {
   }));
 
   const onPieEnter = (_: any, index: number) => {
-    setActiveIndex(index);
+    if (clickedIndex === undefined) {
+      setActiveIndex(index);
+    }
   };
 
   const onPieLeave = () => {
+    if (clickedIndex === undefined) {
+      setActiveIndex(undefined);
+    }
+  };
+
+  const handlePieClick = (_: any, index: number) => {
+    setClickedIndex(prev => prev === index ? undefined : index);
+    setActiveIndex(index);
+  };
+  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
+    setActiveTab(newValue);
+    setClickedIndex(undefined);
     setActiveIndex(undefined);
   };
 
-  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
-    setActiveTab(newValue);
-  };
+  // Get the currently displayed index (either clicked or hovered)
+  const displayedIndex = clickedIndex !== undefined ? clickedIndex : activeIndex;
 
   return (
     <Paper sx={{ 
@@ -158,15 +171,17 @@ const TSPHoldings = () => {
               dataKey="value"
               onMouseEnter={onPieEnter}
               onMouseLeave={onPieLeave}
+              onClick={handlePieClick}
             >
               {funds.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
                   fill={entry.backgroundColor}
                   style={{
-                    transform: `scale(${activeIndex === index ? 1.1 : 1})`,
+                    transform: `scale(${displayedIndex === index ? 1.1 : 1})`,
                     transformOrigin: 'center',
-                    transition: 'transform 0.3s ease-in-out'
+                    transition: 'transform 0.3s ease-in-out',
+                    cursor: 'pointer'
                   }}
                 />
               ))}
@@ -182,62 +197,96 @@ const TSPHoldings = () => {
             textAlign: 'center'
           }}
         >
-          <Typography 
-            variant="h3" 
-            sx={{ 
-              ...theme.typography.h2,
-              color: theme.colors.gray.medium,
-              mb: theme.spacing.xs
-            }}
-          >
-            TSP Total
-          </Typography>
-          <Typography 
-            variant="h1" 
-            sx={{ 
-              ...theme.typography.h3,
-              color: theme.colors.gray.dark,
-              fontSize: '28px'
-            }}
-          >
-            ${totalValue.toLocaleString()}
-          </Typography>
+          {displayedIndex !== undefined ? (
+            <>
+              <Box sx={{ 
+                display: 'inline-block',
+                mb: theme.spacing.xs 
+              }}>
+                <Typography
+                  sx={{
+                    backgroundColor: funds[displayedIndex].backgroundColor,
+                    color: theme.colors.white,
+                    padding: `${theme.spacing.xs} ${theme.spacing.md}`,
+                    borderRadius: '4px',
+                    ...theme.typography.body1,
+                  }}
+                >
+                  {funds[displayedIndex].name}
+                </Typography>
+              </Box>
+              <Typography 
+                variant="h1" 
+                sx={{ 
+                  ...theme.typography.h1,
+                  color: theme.colors.gray.dark,
+                  fontSize: '28px'
+                }}
+              >
+                ${funds[displayedIndex].value.toLocaleString()}
+              </Typography>
+            </>
+          ) : (
+            <>
+              <Typography 
+                variant="h3" 
+                sx={{ 
+                  ...theme.typography.h2,
+                  color: theme.colors.gray.medium,
+                  mb: theme.spacing.xs
+                }}
+              >
+                TSP Total
+              </Typography>
+              <Typography 
+                variant="h1" 
+                sx={{ 
+                  ...theme.typography.h1,
+                  color: theme.colors.gray.dark,
+                  fontSize: '28px'
+                }}
+              >
+                ${totalValue.toLocaleString()}
+              </Typography>
+            </>
+          )}
         </Box>
-      </Box>
+      </Box> 
 
-      <Box>
-        <Box sx={{ 
-          display: 'flex', 
-          justifyContent: 'space-between',
-          mb: theme.spacing.md,
-          px: theme.spacing.md
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        padding: `${theme.spacing.md} ${theme.spacing.md}`,
+        borderBottom: `1px solid ${theme.colors.gray.lighter}`,
+        mb: theme.spacing.xs
         }}>
-          <Typography sx={{ 
-            ...theme.typography.body1,
-            color: theme.colors.gray.medium
-          }}>
+        <Typography sx={{
+            ...theme.typography.h3,
+            color: theme.colors.gray.medium,
+        }}>
             Items
-          </Typography>
-          <Typography sx={{ 
-            ...theme.typography.body1,
-            color: theme.colors.gray.medium
-          }}>
+        </Typography>
+        <Typography sx={{
+            ...theme.typography.h3,
+            color: theme.colors.gray.medium,
+        }}>
             Total Value
-          </Typography>
-        </Box>
-        {funds.map((fund) => (
+        </Typography>
+    </Box>
+
+    <Box>
+        {funds.map((fund, index) => (
           <FundRow
             key={fund.name}
-            name={fund.name}
-            value={fund.value}
-            riskLevel={fund.riskLevel}
-            examples={fund.examples}
-            description={fund.description}
-            backgroundColor={fund.backgroundColor}
+            {...fund}
+            expanded={index === clickedIndex}
+            onToggle={() => {
+              setClickedIndex(prev => prev === index ? undefined : index);
+            }}
           />
         ))}
       </Box>
-    </Paper>
+    </Paper>    
   );
 };
 
