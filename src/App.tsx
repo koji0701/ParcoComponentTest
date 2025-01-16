@@ -1,12 +1,15 @@
-import React from 'react';
+// src/App.tsx
+import { ThemeProvider } from './theme/ThemeProvider';
 import TSPHoldings from './components/TSPHoldings';
 import './App.css';
 
 function App() {
   return (
-    <div className="App">
-      <TSPHoldings />
-    </div>
+    <ThemeProvider>
+      <div className="App">
+        <TSPHoldings />
+      </div>
+    </ThemeProvider>
   );
 }
 

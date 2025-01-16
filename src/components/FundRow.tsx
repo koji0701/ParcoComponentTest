@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Typography, Collapse, Table, TableBody, TableCell, TableRow } from '@mui/material';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import { useTheme } from '../theme/ThemeProvider';
 
 interface FundRowProps {
   name: string;
@@ -12,6 +13,7 @@ interface FundRowProps {
 }
 
 const FundRow: React.FC<FundRowProps> = ({ name, value, riskLevel, examples, description, backgroundColor }) => {
+  const theme = useTheme();
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -22,21 +24,21 @@ const FundRow: React.FC<FundRowProps> = ({ name, value, riskLevel, examples, des
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          padding: '16px',
+          padding: theme.spacing.md,
           cursor: 'pointer',
-          borderBottom: '1px solid rgba(0, 0, 0, 0.12)',
+          backgroundColor: expanded ? theme.colors.gray.lighter : 'transparent',
           '&:hover': {
-            backgroundColor: 'rgba(0, 0, 0, 0.04)',
+            backgroundColor: theme.colors.gray.lighter,
           },
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: theme.spacing.md }}>
           <Typography
-            variant="body1"
             sx={{
-              backgroundColor,
-              color: 'white',
-              padding: '8px 16px',
+              ...theme.typography.body1,
+              backgroundColor: backgroundColor,
+              color: theme.colors.white,
+              padding: `${theme.spacing.xs} ${theme.spacing.md}`,
               borderRadius: '4px',
               fontWeight: 'bold',
             }}
@@ -44,34 +46,78 @@ const FundRow: React.FC<FundRowProps> = ({ name, value, riskLevel, examples, des
             {name}
           </Typography>
         </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Typography variant="h6">
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: theme.spacing.xs }}>
+          <Typography sx={{
+            ...theme.typography.body1,
+            color: theme.colors.gray.dark
+          }}>
             ${value.toLocaleString()}
           </Typography>
-          {expanded ? <ChevronUp size={24} /> : <ChevronDown size={24} />}
+          {expanded ? 
+            <ChevronUp size={24} color={theme.colors.gray.medium} /> : 
+            <ChevronDown size={24} color={theme.colors.gray.medium} />
+          }
         </Box>
       </Box>
       <Collapse in={expanded}>
-        <Box sx={{ padding: '24px', backgroundColor: 'white', borderRadius: '8px', margin: '0 16px 16px' }}>
+        <Box sx={{ 
+          padding: theme.spacing.xl,
+          backgroundColor: theme.colors.white,
+          borderRadius: '8px',
+          margin: `0 ${theme.spacing.md} ${theme.spacing.md}`
+        }}>
           <Table>
             <TableBody>
               <TableRow>
-                <TableCell sx={{ color: 'text.secondary', border: 'none', paddingLeft: 0 }}>
+                <TableCell sx={{ 
+                  ...theme.typography.body1,
+                  color: theme.colors.gray.medium,
+                  border: 'none',
+                  paddingLeft: 0
+                }}>
                   Risk Level
                 </TableCell>
-                <TableCell sx={{ border: 'none' }}>{riskLevel}</TableCell>
+                <TableCell sx={{ 
+                  ...theme.typography.body1,
+                  color: theme.colors.gray.dark,
+                  border: 'none'
+                }}>
+                  {riskLevel}
+                </TableCell>
               </TableRow>
               <TableRow>
-                <TableCell sx={{ color: 'text.secondary', border: 'none', paddingLeft: 0 }}>
+                <TableCell sx={{ 
+                  ...theme.typography.body1,
+                  color: theme.colors.gray.medium,
+                  border: 'none',
+                  paddingLeft: 0
+                }}>
                   Examples
                 </TableCell>
-                <TableCell sx={{ border: 'none' }}>{examples.join(', ')}</TableCell>
+                <TableCell sx={{ 
+                  ...theme.typography.body1,
+                  color: theme.colors.gray.dark,
+                  border: 'none'
+                }}>
+                  {examples.join(', ')}
+                </TableCell>
               </TableRow>
               <TableRow>
-                <TableCell sx={{ color: 'text.secondary', border: 'none', paddingLeft: 0 }}>
+                <TableCell sx={{ 
+                  ...theme.typography.body1,
+                  color: theme.colors.gray.medium,
+                  border: 'none',
+                  paddingLeft: 0
+                }}>
                   Description
                 </TableCell>
-                <TableCell sx={{ border: 'none' }}>{description}</TableCell>
+                <TableCell sx={{ 
+                  ...theme.typography.body1,
+                  color: theme.colors.gray.dark,
+                  border: 'none'
+                }}>
+                  {description}
+                </TableCell>
               </TableRow>
             </TableBody>
           </Table>
